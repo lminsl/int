@@ -4,6 +4,7 @@ import Wallet from './Wallet';
 import PostQuestion from './PostQuestion';
 import TigercoinABI from './TigercoinABI.json';
 import getWeb3 from './web3';
+import './App.css';
 
 const App = () => {
     const [web3, setWeb3] = useState(null);
@@ -30,13 +31,15 @@ const App = () => {
     }, []);
 
     return (
-        <div>
-            <h1>Welcome to the Tigercoin Q&A Platform</h1>
+        <div className="app-container">
+        <h1 className="app-title">Welcome to the Tigercoin Q&A Platform</h1>
+        <div className="wallet-section">
             <Wallet setAccount={setAccount} setBalance={setBalance} />
-            <p>Your Tigercoin Balance: {balance} TIGR</p>
-            {web3 && account && tigercoinContract && (
-                <PostQuestion tigercoinContract={tigercoinContract} account={account} web3={web3} />
-            )}
+            <p className="balance">Your Tigercoin Balance: {balance} TIGR</p>
+        </div>
+        {web3 && account && tigercoinContract && (
+            <PostQuestion tigercoinContract={tigercoinContract} account={account} web3={web3} />
+        )}
         </div>
     );
 };
