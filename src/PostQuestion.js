@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import axios from 'axios'; // need installation -- "npm install axios"
 
-const PostQuestion = ({ tigercoinContract, account, web3 }) => {
+const PostQuestion = ({ tigercoinContract, account, web3 , onTrigger }) => {
     const [question, setQuestion] = useState('');
     const [tokensToFeature, setTokensToFeature] = useState('');
 
@@ -14,6 +15,17 @@ const PostQuestion = ({ tigercoinContract, account, web3 }) => {
 
             await tigercoinContract.methods.spendToFeature(account, tokenAmount).send({ from: account });
             console.log("Question posted with featured amount:", tokensToFeature);
+
+            // Send question to backend
+            await axios.post('http://localhost:3500/api/questions', {
+                question: question,
+                account: account,
+                tokens: tokensToFeature,
+            });
+
+            console.log("Question posted to backend");        
+
+            onTrigger();
 
             setQuestion('');
             setTokensToFeature('');

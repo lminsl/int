@@ -1,3 +1,15 @@
+# Setup overview
+need to set up database (mongod) + backend server (backend/server.js) + frontend server (app.js)
+
+# Database setup (Local machine)
+mkdir -p ./mongodb_data (if ./mongodb_data not present)
+mongod --dbpath ./mongodb_data
+
+# Backend server setup
+cd backend
+node server.js
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
