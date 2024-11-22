@@ -46,6 +46,52 @@ app.post('/api/questions', async (req, res) => {
     }
 });
 
+function gaussianRandom(mean = 0, stdev = 1) {
+    // gives Gaussian distribution
+    let u = 1 - Math.random(); // Avoids log(0) error
+    let v = 1 - Math.random();
+    let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    return z * stdev + mean;
+}
+
+async function getQuestionsWithPriority() {
+    // if question has k tokens, the "selection index" has probability distribution
+    // if t is the time passed after posting, 
+    // = (tokens + {small Gaussian error}) * e^{-lambda * t}
+    try {
+        const results = await Question.aggregate([
+            {
+                $addFields: {
+                    randomScore: { $multiply: ["$tokens", Math.random()] }  // random weight based on tokens
+                }
+            },
+            { $sort: { randomScore: -1 } }  // Sort by randomScore in descending order
+        ]);
+        
+        return results;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+
+
+// API endpoint to fetch all questions
+app.get('/api/questions', async (req, res) => {
+    try {
+        const questions = await Question.find();
+        res.json(questions);
+    } catch (error) {
+        console.error("Error fetching questions:", error);
+        res.status(500).json({ message: 'Error fetching questions', error });
+    }
+});
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+
 // API endpoint to fetch all questions
 app.get('/api/questions', async (req, res) => {
     try {
