@@ -19,10 +19,14 @@ mongoose.connect('mongodb://localhost:27017/questions', {
 
 // Define a Question schema
 const questionSchema = new mongoose.Schema({
+    title: { type: String, required: true }, // Add title field
     question: { type: String, required: true },
-    account: { type: String, required: true },
     tokens: { type: Number, required: true },
+    account: { type: String, required: true },
+    timestamp: { type: Number, required: true }, // Store the timestamp as a number
 });
+
+module.exports = mongoose.model('Question', questionSchema);
 
 // Create a model from the schema
 const Question = mongoose.model('Question', questionSchema);
@@ -30,10 +34,10 @@ const Question = mongoose.model('Question', questionSchema);
 // API endpoint to post a question
 app.post('/api/questions', async (req, res) => {
     try {
-        const { question, account, tokens } = req.body; // Destructure the request body
+        const { title, question, account, tokens, timestamp} = req.body; // Destructure the request body
 
         // Create a new question instance
-        const newQuestion = new Question({ question, account, tokens });
+        const newQuestion = new Question({ title, question, account, tokens, timestamp});
 
         // Save the question to the database
         await newQuestion.save();
@@ -87,10 +91,6 @@ app.get('/api/questions', async (req, res) => {
         res.status(500).json({ message: 'Error fetching questions', error });
     }
 });
-
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
 
 // API endpoint to fetch all questions
 app.get('/api/questions', async (req, res) => {
