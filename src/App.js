@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Wallet from './Wallet';
 import PostQuestion from './PostQuestion';
-import PostAnswer from './PostAnswer';
-import VoteOnAnswer from './VoteOnAnswer';
 import QuestionPage from './QuestionPage'; // Question-specific page
 import TigercoinABI from './TigercoinABI.json';
 import TigercoinPlatformABI from './TigercoinPlatformABI.json';
@@ -21,29 +19,36 @@ const App = () => {
     const [stakeAmount, setStakeAmount] = useState('');
     const [validatorStatus, setValidatorStatus] = useState(false);
     const [stakedAmount, setStakedAmount] = useState(0);
+    const [loading, setLoading] = useState(true);
 
-    const decayRate = 0.00005; // Define the exponential decay rate (adjust as needed)
+    const decayRate = 0.00005; // Define the exponential decay rate
 
     const init = async () => {
-        console.log("Initializing app...");
+        try {
+            console.log("Initializing app...");
+            const web3Instance = await getWeb3();
+            setWeb3(web3Instance);
 
-        const web3Instance = await getWeb3();
-        setWeb3(web3Instance);
+            const accounts = await web3Instance.eth.getAccounts();
+            setAccount(accounts[0]);
 
-        const accounts = await web3Instance.eth.getAccounts();
-        setAccount(accounts[0]);
+            const tigercoin = new web3Instance.eth.Contract(TigercoinABI, '0xCE2cFE60c838a1008Ed6176b0d5C677F5f4990B2');
+            const platform = new web3Instance.eth.Contract(TigercoinPlatformABI, '0x1fd787b9EbbD02e55e6108f2133122BCad8F0770');
 
-        const tigercoin = new web3Instance.eth.Contract(TigercoinABI, '0xCE2cFE60c838a1008Ed6176b0d5C677F5f4990B2');
-        const platform = new web3Instance.eth.Contract(TigercoinPlatformABI, '0x1fd787b9EbbD02e55e6108f2133122BCad8F0770');
+            setTigercoinContract(tigercoin);
+            setPlatformContract(platform);
 
-        setTigercoinContract(tigercoin);
-        setPlatformContract(platform);
+            const balance = await tigercoin.methods.balanceOf(accounts[0]).call();
+            setBalance(web3Instance.utils.fromWei(balance, 'ether'));
 
-        const balance = await tigercoin.methods.balanceOf(accounts[0]).call();
-        setBalance(web3Instance.utils.fromWei(balance, 'ether'));
+            await fetchQuestions();
+            await updateValidatorStatus(accounts[0], platform, web3Instance);
 
-        fetchQuestions(); // Fetch questions after initialization
-        updateValidatorStatus(accounts[0], platform, web3Instance);
+            setLoading(false);
+        } catch (error) {
+            console.error("Error during initialization:", error);
+            setLoading(false);
+        }
     };
 
     const computeValue = (tokens, timestamp) => {
@@ -61,7 +66,6 @@ const App = () => {
                 }))
                 .sort((a, b) => b.value - a.value); // Sort by value (descending)
             setQuestions(sortedQuestions);
-            console.log("Questions fetched and sorted:", sortedQuestions);
         } catch (error) {
             console.error("Error fetching questions:", error);
         }
@@ -80,15 +84,11 @@ const App = () => {
     const handleStake = async (web3Instance) => {
         try {
             const stakeInWei = web3Instance.utils.toWei(stakeAmount, 'ether');
-            await tigercoinContract.methods
-                .approve(platformContract.options.address, stakeInWei)
-                .send({ from: account });
-
             await platformContract.methods.stakeTokens(stakeInWei).send({ from: account });
             console.log("Stake successful");
 
             setStakeAmount('');
-            await updateValidatorStatus(account, platformContract);
+            await updateValidatorStatus(account, platformContract, web3Instance);
             const balance = await tigercoinContract.methods.balanceOf(account).call();
             setBalance(web3Instance.utils.fromWei(balance, 'ether'));
         } catch (error) {
@@ -100,7 +100,7 @@ const App = () => {
         try {
             const stakedInWei = web3Instance.utils.toWei(stakedAmount, 'ether');
             await platformContract.methods.unstakeTokens(stakedInWei).send({ from: account });
-            updateValidatorStatus(account, platformContract);
+            await updateValidatorStatus(account, platformContract, web3Instance);
         } catch (error) {
             console.error("Error unstaking tokens:", error);
         }
@@ -109,6 +109,10 @@ const App = () => {
     useEffect(() => {
         init();
     }, []);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <Router>
@@ -125,26 +129,23 @@ const App = () => {
                                     <p className="balance">Your Tigercoin Balance: {balance} TIGR</p>
 
                                     {/* Validator Status and Stake/Unstake Section */}
-<p>Validator Status: {validatorStatus ? "True" : "False"}</p>
-{validatorStatus ? (
-    <div>
-        <p>Staked Amount: {stakedAmount} TIGR</p>
-        {/* Pass web3Instance explicitly to handleUnstake */}
-        <button onClick={() => handleUnstake(web3)}>Unstake</button>
-    </div>
-) : (
-    <div>
-        <input
-            type="number"
-            value={stakeAmount}
-            onChange={(e) => setStakeAmount(e.target.value)}
-            placeholder="Amount to stake"
-        />
-        {/* Pass web3Instance explicitly to handleStake */}
-        <button onClick={() => handleStake(web3)}>Stake</button>
-    </div>
-)}
-
+                                    <p>Validator Status: {validatorStatus ? "True" : "False"}</p>
+                                    {validatorStatus ? (
+                                        <div>
+                                            <p>Staked Amount: {stakedAmount} TIGR</p>
+                                            <button onClick={() => handleUnstake(web3)}>Unstake</button>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <input
+                                                type="number"
+                                                value={stakeAmount}
+                                                onChange={(e) => setStakeAmount(e.target.value)}
+                                                placeholder="Amount to stake"
+                                            />
+                                            <button onClick={() => handleStake(web3)}>Stake</button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {web3 && account && tigercoinContract && (
@@ -161,9 +162,9 @@ const App = () => {
                                     <ul>
                                         {questions.map((question) => (
                                             <li key={question._id} className="question-item">
-                                                <a href={`/question/${question._id}`}>
+                                                <Link to={`/question/${question._id}`}>
                                                     <h3>{question.title}</h3>
-                                                </a>
+                                                </Link>
                                                 <p>{question.question.slice(0, 100)}...</p>
                                                 <p>Posted by: {question.account}</p>
                                                 <p>Tokens: {question.tokens}</p>
@@ -179,7 +180,17 @@ const App = () => {
                     {/* Question-specific page */}
                     <Route
                         path="/question/:id"
-                        element={<QuestionPage platformContract={platformContract} account={account} />}
+                        element={
+                            platformContract && account && web3 ? (
+                                <QuestionPage
+                                    platformContract={platformContract}
+                                    account={account}
+                                    web3={web3}
+                                />
+                            ) : (
+                                <div>Loading...</div>
+                            )
+                        }
                     />
                 </Routes>
             </div>
