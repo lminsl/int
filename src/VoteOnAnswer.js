@@ -1,7 +1,7 @@
 /* global BigInt */
 import React, { useState, useEffect } from 'react';
 
-const VoteOnAnswer = ({ platformContract, answerId, account, stakeAmount, validatorStatus }) => {
+const VoteOnAnswer = ({ platformContract, questionId, account, stakeAmount, validatorStatus }) => {
     const [hasVoted, setHasVoted] = useState(false);
     const [isVotingAllowed, setIsVotingAllowed] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -10,20 +10,31 @@ const VoteOnAnswer = ({ platformContract, answerId, account, stakeAmount, valida
         // Check if the user has already voted and if the voting window is still active
         const checkVotingStatus = async () => {
             try {
-                if (!platformContract || !answerId) {
+                if (!platformContract || !questionId) {
                     setErrorMessage("Platform contract or answer ID is missing.");
                     return;
                 }
 
                 // Ensure answerId is converted to uint256
-                const formattedAnswerId = BigInt(`0x${answerId}`).toString();
+                const formattedQuestionId = BigInt(`0x${questionId}`).toString();
+                console.log(formattedQuestionId)
 
-                const voted = await platformContract.methods.hasVoted(formattedAnswerId, account).call();
+                const voted = await platformContract.methods.hasVoted(formattedQuestionId, account).call();
                 setHasVoted(voted);
+                console.log(voted)
 
-                const answer = await platformContract.methods.answers(formattedAnswerId).call();
+                const answer = await platformContract.methods.answers(formattedQuestionId).call();
+                const votingWindow = await platformContract.methods.votingWindow().call();
+
                 const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-                const votingEndTime = parseInt(answer.timestamp) + parseInt(answer.votingWindow);
+                const votingEndTime = parseInt(answer.timestamp) + parseInt(votingWindow);
+                console.log('Answer Data:', answer);
+                
+                console.log('Answer time:', answer.timestamp);
+                console.log('Answer window:', votingWindow);
+                console.log('current:', currentTime);
+
+                
 
                 setIsVotingAllowed(currentTime <= votingEndTime);
             } catch (error) {
@@ -33,7 +44,7 @@ const VoteOnAnswer = ({ platformContract, answerId, account, stakeAmount, valida
         };
 
         checkVotingStatus();
-    }, [answerId, account, platformContract]);
+    }, [questionId, account, platformContract]);
 
     const vote = async (isCorrect) => {
         try {
@@ -51,9 +62,9 @@ const VoteOnAnswer = ({ platformContract, answerId, account, stakeAmount, valida
             }
 
             // Ensure answerId is converted to uint256
-            const formattedAnswerId = BigInt(`0x${answerId}`).toString();
+            const formattedQuestionId = BigInt(`0x${questionId}`).toString();
 
-            await platformContract.methods.voteOnAnswer(formattedAnswerId, isCorrect).send({ from: account });
+            await platformContract.methods.voteOnAnswer(formattedQuestionId, isCorrect).send({ from: account });
             setHasVoted(true); // Mark the user as having voted
             setErrorMessage("Vote submitted successfully!");
         } catch (error) {

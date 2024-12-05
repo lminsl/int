@@ -1,10 +1,29 @@
-import React, { useState } from 'react';
+/* global BigInt */
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const PostAnswer = ({ platformContract, questionId, account, web3 }) => {
+const PostAnswer = ({ platformContract, questionId, account, web3, stakeAmount }) => {
     const [answer, setAnswer] = useState('');
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [hasAnswer, setHasAnswer] = useState(false);
+
+    // Check if an answer already exists for the question
+    useEffect(() => {
+        const checkForExistingAnswer = async () => {
+            try {
+                const response = await axios.get(`http://localhost:3500/api/questions/${questionId}/answers`);
+                if (response.data.length > 0) {
+                    setHasAnswer(true); // Answer already exists
+                }
+            } catch (error) {
+                console.error("Error checking for existing answers:", error);
+                setErrorMessage("Failed to verify if an answer exists.");
+            }
+        };
+
+        checkForExistingAnswer();
+    }, [questionId]);
 
     const handlePostAnswer = async () => {
         setErrorMessage('');
@@ -12,24 +31,25 @@ const PostAnswer = ({ platformContract, questionId, account, web3 }) => {
 
         try {
             // Ensure questionId is correctly formatted
-            const formattedQuestionId = questionId.startsWith("0x") ? questionId : `0x${questionId}`;
+            const formattedQuestionId = BigInt(`0x${questionId}`).toString();
 
             // Interact with the smart contract
-            await platformContract.methods.postAnswer(formattedQuestionId).send({
+            await platformContract.methods.postAnswer(formattedQuestionId, stakeAmount).send({
                 from: account,
             });
             console.log("Answer posted on blockchain successfully");
 
             // Post answer to the backend
             const response = await axios.post('http://localhost:3500/api/answers', {
-                questionId,       // ID of the related question
-                answer,           // Text of the answer
-                expert: account,  // The expert's wallet address
-                rewardEscrow: 0,  // Optional: Set reward escrow or calculate if needed
+                questionId: questionId, // Ensure it matches the backend API expectation
+                answer, // Text of the answer
+                expert: account, // The expert's wallet address
+                rewardEscrow: 0, // Optional: Set reward escrow or calculate if needed
             });
 
             console.log("Answer saved in backend successfully:", response.data);
             setAnswer(''); // Clear the input after successful submission
+            setHasAnswer(true); // Mark that an answer now exists
         } catch (error) {
             console.error("Error posting answer:", error);
             setErrorMessage("There was an error posting your answer. Please try again.");
@@ -40,15 +60,21 @@ const PostAnswer = ({ platformContract, questionId, account, web3 }) => {
 
     return (
         <div>
-            <textarea
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Your answer"
-                disabled={loading}
-            />
-            <button onClick={handlePostAnswer} disabled={loading || !answer}>
-                {loading ? "Posting..." : "Post Answer"}
-            </button>
+            {hasAnswer ? (
+                <p>An answer has already been posted for this question.</p>
+            ) : (
+                <>
+                    <textarea
+                        value={answer}
+                        onChange={(e) => setAnswer(e.target.value)}
+                        placeholder="Your answer"
+                        disabled={loading}
+                    />
+                    <button onClick={handlePostAnswer} disabled={loading || !answer}>
+                        {loading ? "Posting..." : "Post Answer"}
+                    </button>
+                </>
+            )}
             {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
     );

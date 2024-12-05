@@ -33,13 +33,20 @@ const App = () => {
             setAccount(accounts[0]);
 
             const tigercoin = new web3Instance.eth.Contract(TigercoinABI, '0xCE2cFE60c838a1008Ed6176b0d5C677F5f4990B2');
-            const platform = new web3Instance.eth.Contract(TigercoinPlatformABI, '0x1fd787b9EbbD02e55e6108f2133122BCad8F0770');
+            const platform = new web3Instance.eth.Contract(TigercoinPlatformABI, '0x84C0a3752ee69609B68A45251EE4b0FD374F4795');
 
             setTigercoinContract(tigercoin);
             setPlatformContract(platform);
 
             const balance = await tigercoin.methods.balanceOf(accounts[0]).call();
             setBalance(web3Instance.utils.fromWei(balance, 'ether'));
+
+            try {
+                const owner = await platform.methods.owner().call();
+                console.log('Platform Contract Owner:', owner);
+            } catch (error) {
+                console.error('Error connecting to Platform Contract:', error);
+            }
 
             await fetchQuestions();
             await updateValidatorStatus(accounts[0], platform, web3Instance);
@@ -186,6 +193,7 @@ const App = () => {
                                     platformContract={platformContract}
                                     account={account}
                                     web3={web3}
+                                    validatorStatus={validatorStatus}
                                 />
                             ) : (
                                 <div>Loading...</div>

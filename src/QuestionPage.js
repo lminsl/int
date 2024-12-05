@@ -4,7 +4,7 @@ import VoteOnAnswer from './VoteOnAnswer';
 import PostAnswer from './PostAnswer';
 import axios from 'axios';
 
-const QuestionPage = ({ platformContract, account, web3 }) => {
+const QuestionPage = ({ platformContract, account, web3, validatorStatus}) => {
     const { id } = useParams(); // Get the question ID from the URL
     const [question, setQuestion] = useState(null);
     const [answers, setAnswers] = useState([]);
@@ -62,6 +62,7 @@ const QuestionPage = ({ platformContract, account, web3 }) => {
                 questionId={id}
                 account={account}
                 web3={web3}
+                stakeAmount={question.tokens}
                 onAnswerPosted={refreshAnswers} // Callback to refresh answers
             />
 
@@ -72,8 +73,9 @@ const QuestionPage = ({ platformContract, account, web3 }) => {
                         <p>{answer.answer}</p>
                         <VoteOnAnswer
                             platformContract={platformContract}
-                            answerId={answer._id}
+                            questionId={answer.questionId}
                             account={account}
+                            validatorStatus={validatorStatus}
                         />
                     </div>
                 ))
