@@ -1,3 +1,4 @@
+/* global BigInt */
 import React, { useState, useEffect } from 'react';
 
 const VoteOnAnswer = ({ platformContract, answerId, account, stakeAmount, validatorStatus }) => {
@@ -6,31 +7,32 @@ const VoteOnAnswer = ({ platformContract, answerId, account, stakeAmount, valida
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
-        // Check if the user has already voted on this answer
-        const checkIfVoted = async () => {
+        // Check if the user has already voted and if the voting window is still active
+        const checkVotingStatus = async () => {
             try {
-                const voted = await platformContract.methods.hasVoted(answerId, account).call();
-                setHasVoted(voted);
-            } catch (error) {
-                console.error("Error checking vote status:", error);
-            }
-        };
+                if (!platformContract || !answerId) {
+                    setErrorMessage("Platform contract or answer ID is missing.");
+                    return;
+                }
 
-        // Check if voting is still within the allowed window
-        const checkVotingWindow = async () => {
-            try {
-                const answer = await platformContract.methods.answers(answerId).call();
+                // Ensure answerId is converted to uint256
+                const formattedAnswerId = BigInt(`0x${answerId}`).toString();
+
+                const voted = await platformContract.methods.hasVoted(formattedAnswerId, account).call();
+                setHasVoted(voted);
+
+                const answer = await platformContract.methods.answers(formattedAnswerId).call();
                 const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
                 const votingEndTime = parseInt(answer.timestamp) + parseInt(answer.votingWindow);
 
                 setIsVotingAllowed(currentTime <= votingEndTime);
             } catch (error) {
-                console.error("Error checking voting window:", error);
+                console.error("Error checking voting status:", error);
+                setErrorMessage("Error checking voting status. Please try again.");
             }
         };
 
-        checkIfVoted();
-        checkVotingWindow();
+        checkVotingStatus();
     }, [answerId, account, platformContract]);
 
     const vote = async (isCorrect) => {
@@ -48,8 +50,12 @@ const VoteOnAnswer = ({ platformContract, answerId, account, stakeAmount, valida
                 return;
             }
 
-            await platformContract.methods.voteOnAnswer(answerId, isCorrect).send({ from: account, value: stakeAmount });
-            setHasVoted(true); // Set hasVoted to true after voting
+            // Ensure answerId is converted to uint256
+            const formattedAnswerId = BigInt(`0x${answerId}`).toString();
+
+            await platformContract.methods.voteOnAnswer(formattedAnswerId, isCorrect).send({ from: account });
+            setHasVoted(true); // Mark the user as having voted
+            setErrorMessage("Vote submitted successfully!");
         } catch (error) {
             console.error("Error voting on answer:", error);
             setErrorMessage("Error occurred during voting. Please try again.");
@@ -58,6 +64,8 @@ const VoteOnAnswer = ({ platformContract, answerId, account, stakeAmount, valida
 
     return (
         <div>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+
             {hasVoted ? (
                 <p>You've already voted on this answer.</p>
             ) : isVotingAllowed ? (
@@ -72,7 +80,6 @@ const VoteOnAnswer = ({ platformContract, answerId, account, stakeAmount, valida
             ) : (
                 <p>Voting period has ended.</p>
             )}
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
     );
 };
