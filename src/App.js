@@ -91,6 +91,11 @@ const App = () => {
     const handleStake = async (web3Instance) => {
         try {
             const stakeInWei = web3Instance.utils.toWei(stakeAmount, 'ether');
+
+            await tigercoinContract.methods
+            .approve(platformContract.options.address, stakeInWei)
+            .send({ from: account });
+
             await platformContract.methods.stakeTokens(stakeInWei).send({ from: account });
             console.log("Stake successful");
 
