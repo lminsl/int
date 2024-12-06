@@ -91,11 +91,6 @@ const App = () => {
     const handleStake = async (web3Instance) => {
         try {
             const stakeInWei = web3Instance.utils.toWei(stakeAmount, 'ether');
-
-            await tigercoinContract.methods
-            .approve(platformContract.options.address, stakeInWei)
-            .send({ from: account });
-
             await platformContract.methods.stakeTokens(stakeInWei).send({ from: account });
             console.log("Stake successful");
 
@@ -128,87 +123,101 @@ const App = () => {
 
     return (
         <Router>
-            <div className="app-container">
-                <h1 className="app-title">Welcome to the Tigercoin Q&A Platform</h1>
+            <div class="container">
                 <Routes>
-                    {/* Homepage */}
-                    <Route
-                        path="/"
-                        element={
+                <Route path="/" element={
+                <div>
+                    <header class="header">
+                        <a href="#" class="site-title">Tigercoin Q&A Platform</a>
+                        {/* <nav class="nav-links">
+                            <a href="#">Home</a>
+                            <a href="#">Questions</a>
+                            <a href="#">Tags</a>
+                            <a href="#">Users</a>
+                        </nav> */}
+                        <br />
+
+                        <Wallet>Connect Wallet</Wallet>
+                        <div class="token-address">Current balance: {balance} TIGR</div>
+                    </header>
+                    <section class="validator-status">
+                        {/* <h2 class="validator-title">Validator Status</h2> */}
+                        <div class="validator-title">You are currently an {validatorStatus ? "Active" : "Inactive"} Validator.</div>
+                        {validatorStatus ? (
                             <div>
-                                <div className="wallet-section">
-                                    <Wallet setAccount={setAccount} setBalance={setBalance} />
-                                    <p className="balance">Your Tigercoin Balance: {balance} TIGR</p>
-
-                                    {/* Validator Status and Stake/Unstake Section */}
-                                    <p>Validator Status: {validatorStatus ? "True" : "False"}</p>
-                                    {validatorStatus ? (
-                                        <div>
-                                            <p>Staked Amount: {stakedAmount} TIGR</p>
-                                            <button onClick={() => handleUnstake(web3)}>Unstake</button>
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            <input
-                                                type="number"
-                                                value={stakeAmount}
-                                                onChange={(e) => setStakeAmount(e.target.value)}
-                                                placeholder="Amount to stake"
-                                            />
-                                            <button onClick={() => handleStake(web3)}>Stake</button>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {web3 && account && tigercoinContract && (
-                                    <PostQuestion
-                                        tigercoinContract={tigercoinContract}
-                                        account={account}
-                                        web3={web3}
-                                        refreshQuestions={fetchQuestions}
-                                    />
-                                )}
-
-                                <div className="questions-section">
-                                    <h2>Questions:</h2>
-                                    <ul>
-                                        {questions.map((question) => (
-                                            <li key={question._id} className="question-item">
-                                                <Link to={`/question/${question._id}`}>
-                                                    <h3>{question.title}</h3>
-                                                </Link>
-                                                <p>{question.question.slice(0, 100)}...</p>
-                                                <p>Posted by: {question.account}</p>
-                                                <p>Tokens: {question.tokens}</p>
-                                                <p>Value: {question.value.toFixed(2)}</p>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                                <div class="staked-amount">Staked Amount: {stakedAmount} TIGR</div>
+                                <button class="button" onClick={() => handleUnstake(web3)}>Unstake</button>
                             </div>
-                        }
-                    />
-
-                    {/* Question-specific page */}
-                    <Route
-                        path="/question/:id"
-                        element={
-                            platformContract && account && web3 ? (
-                                <QuestionPage
-                                    platformContract={platformContract}
-                                    account={account}
-                                    web3={web3}
-                                    validatorStatus={validatorStatus}
+                        ) : (
+                            <div class="form-group">
+                                <input
+                                    type="number"
+                                    value={stakeAmount}
+                                    onChange={(e) => setStakeAmount(e.target.value)}
+                                    placeholder="Amount to stake"
                                 />
-                            ) : (
-                                <div>Loading...</div>
-                            )
-                        }
-                    />
-                </Routes>
+                                <button class="button" onClick={() => handleStake(web3)}>Stake</button>
+                            </div>
+                        )}
+                    </section>
+
+                    <br />
+
+                    {web3 && account && tigercoinContract && (
+                        <PostQuestion
+                            tigercoinContract={tigercoinContract}
+                            account={account}
+                            web3={web3}
+                            refreshQuestions={fetchQuestions}
+                        />
+                    )}                        
+
+                    <div>
+                        <h2 class="section-title">Top Questions</h2>
+                        <ul class="question-list">
+                            {questions.map((question) => (
+                            <li key={question._id} class="question-item">
+                                <a href={`/question/${question._id}`} class="question-title">
+                                    {question.title}</a>
+                                <div class="stats" style={{flexDirection: 'column', flexBasis: '100%'}}>
+                                    <div>{question.question.slice(0, 100)}</div>
+                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                        <span>Bounty: {question.tokens} TIGR</span>
+                                        <span>Urgency: {question.value.toFixed(2)}</span>
+                                    </div>
+                                    <div>
+                                        <span>asked by {question.account}</span>
+                                    </div>
+                                </div>
+                            </li>
+                        ))}
+                        </ul>
+                    </div>
+                </div>
+                } />
+
+                {/* Question-specific page */}
+                <Route
+                    path="/question/:id"
+                    element={
+                        platformContract && account && web3 ? (
+                            <QuestionPage
+                                platformContract={platformContract}
+                                account={account}
+                                web3={web3}
+                                validatorStatus={validatorStatus}
+                            />
+                        ) : (
+                            <div>Loading...</div>
+                        )
+                    }
+                />        
+            </Routes>
             </div>
         </Router>
+
     );
 };
+
 
 export default App;

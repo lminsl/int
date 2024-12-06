@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './App.css';
 
 const Wallet = ({ setAccount, setBalance }) => {
     const [connectedAccount, setConnectedAccount] = useState('');
@@ -25,7 +26,7 @@ const Wallet = ({ setAccount, setBalance }) => {
             {connectedAccount ? (
                 <p>Connected Account: {connectedAccount}</p>
             ) : (
-                <button onClick={() => window.ethereum.request({ method: 'eth_requestAccounts' })}>
+                <button class="button" onClick={() => window.ethereum.request({ method: 'eth_requestAccounts' })}>
                     Connect Wallet
                 </button>
             )}

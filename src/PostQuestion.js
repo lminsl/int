@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './App.css';
 
 const PostQuestion = ({ tigercoinContract, account, web3, refreshQuestions }) => {
     const [title, setTitle] = useState(''); // New state for title
@@ -7,6 +8,7 @@ const PostQuestion = ({ tigercoinContract, account, web3, refreshQuestions }) =>
     const [tokensToFeature, setTokensToFeature] = useState('');
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+
 
     const postQuestion = async () => {
         setErrorMessage('');
@@ -44,31 +46,38 @@ const PostQuestion = ({ tigercoinContract, account, web3, refreshQuestions }) =>
     };
 
     return (
-        <div className="post-question">
-            <h2>Post a New Question</h2>
-            <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Title of your question"
-                disabled={loading}
-            />
-            <textarea
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Details of your question"
-                disabled={loading}
-            />
-            <input
-                type="number"
-                value={tokensToFeature}
-                onChange={(e) => setTokensToFeature(e.target.value)}
-                placeholder="Tokens to feature"
-                disabled={loading}
-            />
-            <button onClick={postQuestion} disabled={loading || !title || !question || !tokensToFeature}>
-                {loading ? "Posting..." : "Post Question"}
-            </button>
+        <div class="post-question">
+        <section class="question-form">
+                <h2 class="section-title">Post a New Question</h2>
+                <form>
+                    <div class="form-group">
+                        <input type="text" value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Title of your question"
+                            disabled = {loading} />
+                    </div>
+                    <div class="form-group">
+                        <textarea
+                            type="text"
+                            value={question}
+                            onChange={(e) => setQuestion(e.target.value)}
+                            placeholder="Details of your question"
+                            disabled={loading} />
+                    </div>
+                    <div class="form-group">
+                        <input
+                            type="number"
+                            value={tokensToFeature}
+                            onChange={(e) => setTokensToFeature(e.target.value)}
+                            placeholder="Tokens to feature"
+                            disabled={loading} />
+                    </div>
+                    <button class="button" onClick={postQuestion} 
+                    disabled={loading || !title || !question || !tokensToFeature}>
+                        {loading ? "Posting..." : "Post Question"}
+                    </button>
+                </form>
+            </section>
 
             {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>

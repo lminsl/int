@@ -37,8 +37,6 @@
   }
 }
 
-/* added */
-
 body {
   font-family: Arial, sans-serif;
   background-color: #f5f7fa;
@@ -92,4 +90,160 @@ button {
 
 button:hover {
   background-color: #2851a3;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+  color: #2d3748;
+  line-height: 1.5;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 100%; /* Example max-width */
+  margin: 0 auto;
+  padding: 20px;
+}
+
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.site-title {
+  font-size: 1.5rem;
+  color: #6B46C1;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+}
+
+.nav-links {
+  margin-bottom: 1rem;
+}
+
+.nav-links a {
+  color: #6B46C1;
+  text-decoration: none;
+  margin-right: 1rem;
+}
+
+.button {
+  background-color: #4C6EF5;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.button:hover {
+  background-color: #4361ee;
+}
+
+.token-address {
+  color: #718096;
+  font-family: monospace;
+  margin: 1rem 0;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 2rem 0 1rem;
+  color: #1a202c;
+}
+
+.question-form {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.question-list {
+  list-style: none;
+  padding: 0;
+}
+
+.question-item {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+
+.question-title {
+  color: #6B46C1;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.question-meta {
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  color: #718096;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.validator-status {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-top: 2rem;
+}
+
+.validator-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.validator-info {
+  margin-bottom: 1rem;
+}
+
+.staked-amount {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
 }
