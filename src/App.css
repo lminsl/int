@@ -38,8 +38,6 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f5f7fa;
   margin: 0;
   padding: 0;
   display: flex;
@@ -93,7 +91,7 @@ button:hover {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'DM Serif Text', 'Poppins', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   margin: 0;
   padding: 0;
@@ -205,7 +203,7 @@ textarea {
 
 .question-title {
   color: #6B46C1;
-  font-size: 1.25rem;
+  font-size: 40px;
   font-weight: 600;
   text-decoration: none;
   margin-bottom: 0.5rem;
@@ -233,6 +231,24 @@ textarea {
   margin-top: 2rem;
 }
 
+.question-box {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-top: 2rem; 
+}
+
+.response-box { 
+  background: lightgrey;
+  padding: 0.5rem;
+  align-items: center;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-top: 2rem; 
+
+}
+
 .validator-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -246,4 +262,85 @@ textarea {
 .staked-amount {
   font-size: 1.125rem;
   margin-bottom: 1rem;
+}
+
+:root {
+  --primary-color: #8711b2;
+  --secondary-color: #360aea;
+  --background-color: #f9f9f9;
+  --text-color: #333333;
+  --light-text-color: #666666;
+  --border-color: #e0e0e0;
+}
+
+/* 'DM Serif Text', 'Poppins',  */
+body {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.5;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px; /* Example max-width */
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  margin: 1.5rem 0 1rem;
+}
+
+.question-title {
+  font-size: 2rem;
+  color: var(--primary-color);
+}
+
+.validator-title {
+  font-size: 1.4rem;
+}
+
+.site-title, .nav-links a {
+  color: var(--primary-color);
+}
+
+.button {
+  background-color: var(--primary-color);
+  font-family: inherit;
+}
+
+
+.button:hover {
+  background-color: #2980b9;
+}
+
+.token-address, .question-meta, .stats {
+  color: var(--light-text-color);
+}
+
+.question-item, .question-form, .validator-status {
+  background-color: white;
+  border: 1px solid var(--border-color);
 }

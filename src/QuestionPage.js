@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import VoteOnAnswer from './VoteOnAnswer';
 import PostAnswer from './PostAnswer';
 import axios from 'axios';
+import './App.css';
 
 const QuestionPage = ({ platformContract, account, web3, validatorStatus}) => {
     const { id } = useParams(); // Get the question ID from the URL
@@ -46,17 +47,16 @@ const QuestionPage = ({ platformContract, account, web3, validatorStatus}) => {
     return (
         <div>
             {question ? (
-                <>
-                    <h1>{question.title}</h1>
-                    <p>{question.question}</p>
-                    <p>Tokens: {question.tokens}</p>
-                    <p>Posted by: {question.account}</p>
-                </>
+                <div>
+                    <h1 class="question-title">{question.title}</h1>
+                    <div class="question-box">{question.question}</div>
+                    <p>Bounty: {question.tokens} TIGR</p>
+                    <p>asked by {question.account}</p>
+                </div>
             ) : (
                 <p>Question not found.</p>
             )}
 
-            <h2>Post an Answer:</h2>
             <PostAnswer
                 platformContract={platformContract}
                 questionId={id}
@@ -66,11 +66,12 @@ const QuestionPage = ({ platformContract, account, web3, validatorStatus}) => {
                 onAnswerPosted={refreshAnswers} // Callback to refresh answers
             />
 
-            <h2>Answers:</h2>
+            <h2>Answers</h2>
             {answers.length > 0 ? (
                 answers.map((answer) => (
                     <div key={answer._id}>
                         <p>{answer.answer}</p>
+                        {/* <span>{answer.upvotes} upvotes, {answer.downvotes} downvotes</span> */}
                         <VoteOnAnswer
                             platformContract={platformContract}
                             questionId={answer.questionId}
@@ -80,7 +81,7 @@ const QuestionPage = ({ platformContract, account, web3, validatorStatus}) => {
                     </div>
                 ))
             ) : (
-                <p>No answers yet.</p>
+                <p>No answers posted yet.</p>
             )}
         </div>
     );

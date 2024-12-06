@@ -1,6 +1,7 @@
 /* global BigInt */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './App.css';
 
 const PostAnswer = ({ platformContract, questionId, account, web3, stakeAmount }) => {
     const [answer, setAnswer] = useState('');
@@ -59,18 +60,20 @@ const PostAnswer = ({ platformContract, questionId, account, web3, stakeAmount }
     };
 
     return (
-        <div>
+        <div class="response-box">
             {hasAnswer ? (
-                <p>An answer has already been posted for this question.</p>
+                <p>You have already posted an answer for this question.</p>
             ) : (
-                <>
+                <>  
+                    <br />
+                    <h2>Post an Answer</h2>
                     <textarea
                         value={answer}
                         onChange={(e) => setAnswer(e.target.value)}
                         placeholder="Your answer"
                         disabled={loading}
                     />
-                    <button onClick={handlePostAnswer} disabled={loading || !answer}>
+                    <button class="button" onClick={handlePostAnswer} disabled={loading || !answer}>
                         {loading ? "Posting..." : "Post Answer"}
                     </button>
                 </>

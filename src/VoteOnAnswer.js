@@ -1,7 +1,9 @@
 /* global BigInt */
 import React, { useState, useEffect } from 'react';
+import './App.css';
 
-const VoteOnAnswer = ({ platformContract, questionId, account, stakeAmount, validatorStatus }) => {
+const VoteOnAnswer = ({ platformContract, questionId, account, 
+    stakeAmount, validatorStatus }) => {
     const [hasVoted, setHasVoted] = useState(false);
     const [isVotingAllowed, setIsVotingAllowed] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -75,16 +77,17 @@ const VoteOnAnswer = ({ platformContract, questionId, account, stakeAmount, vali
 
     return (
         <div>
+            <h2 className="text-2xl font-semibold mb-4">Vote on Answer</h2>
             {errorMessage && <p className="error-message">{errorMessage}</p>}
 
             {hasVoted ? (
-                <p>You've already voted on this answer.</p>
+                <p>You have already voted on this answer.</p>
             ) : isVotingAllowed ? (
                 validatorStatus ? (
-                    <>
-                        <button onClick={() => vote(true)}>Vote Correct</button>
-                        <button onClick={() => vote(false)}>Vote Incorrect</button>
-                    </>
+                    <div style={{display: 'flex', width: '40%', justifyContent: 'space-between'}}>
+                        <button class="button" onClick={() => vote(true)}>Vote Correct</button>
+                        <button class="button" onClick={() => vote(false)}>Vote Incorrect</button>
+                    </div>
                 ) : (
                     <p>Only validators can vote.</p>
                 )

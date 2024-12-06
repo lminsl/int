@@ -91,6 +91,11 @@ const App = () => {
     const handleStake = async (web3Instance) => {
         try {
             const stakeInWei = web3Instance.utils.toWei(stakeAmount, 'ether');
+
+            await tigercoinContract.methods
+            .approve(platformContract.options.address, stakeInWei)
+            .send({ from: account });
+
             await platformContract.methods.stakeTokens(stakeInWei).send({ from: account });
             console.log("Stake successful");
 
@@ -123,12 +128,16 @@ const App = () => {
 
     return (
         <Router>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+            <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet" />
+
             <div class="container">
                 <Routes>
                 <Route path="/" element={
                 <div>
                     <header class="header">
-                        <a href="#" class="site-title">Tigercoin Q&A Platform</a>
+                        <a href="#" class="site-title" style={{fontSize: '2rem'}}>Tigercoin Q&A Platform</a>
                         {/* <nav class="nav-links">
                             <a href="#">Home</a>
                             <a href="#">Questions</a>
@@ -139,10 +148,11 @@ const App = () => {
 
                         <Wallet>Connect Wallet</Wallet>
                         <div class="token-address">Current balance: {balance} TIGR</div>
-                    </header>
+                        <div class="token-address">You are currently an {validatorStatus ? "Active" : "Inactive"} Validator.</div>
+                        </header>
+                    <div style={{display: 'block'}}>
                     <section class="validator-status">
                         {/* <h2 class="validator-title">Validator Status</h2> */}
-                        <div class="validator-title">You are currently an {validatorStatus ? "Active" : "Inactive"} Validator.</div>
                         {validatorStatus ? (
                             <div>
                                 <div class="staked-amount">Staked Amount: {stakedAmount} TIGR</div>
@@ -171,7 +181,8 @@ const App = () => {
                             refreshQuestions={fetchQuestions}
                         />
                     )}                        
-
+                    </div>
+                    
                     <div>
                         <h2 class="section-title">Top Questions</h2>
                         <ul class="question-list">
@@ -181,11 +192,11 @@ const App = () => {
                                     {question.title}</a>
                                 <div class="stats" style={{flexDirection: 'column', flexBasis: '100%'}}>
                                     <div>{question.question.slice(0, 100)}</div>
-                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', fontFamily: 'monospace'}}>
                                         <span>Bounty: {question.tokens} TIGR</span>
                                         <span>Urgency: {question.value.toFixed(2)}</span>
                                     </div>
-                                    <div>
+                                    <div style={{fontFamily: 'monospace'}}>
                                         <span>asked by {question.account}</span>
                                     </div>
                                 </div>
@@ -218,6 +229,5 @@ const App = () => {
 
     );
 };
-
 
 export default App;
